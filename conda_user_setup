@@ -1,5 +1,13 @@
 #!/bin/bash
 # See usage message below for complete description.
+#
+# This script is part of the conda_user_shared package version 0.1.
+#
+#    https://github.com/sprague252/conda_user_shared
+#
+# Copyright Mark Sprague. Distributed under the GNU General Public
+# License v3.0.
+
 set -e
 set -o pipefail
 usage=$(cat << END
@@ -11,6 +19,7 @@ preferences and user-installed environments.  This allows the user to
 install environments once and use them on all Mac Lab computers.  Note
 that this script must be run in the users home directory (~) to install
 the symlinks in the correct location.
+
 
 Options:
 
@@ -36,7 +45,8 @@ Options:
   -d PDDIR     Set the path to the (piratedrive) shared directory with
                the conda configuration information to PDDIR.
                
-               
+conda_user_shared package version 0.1           
+   
 END
 )
 # Set defaults.

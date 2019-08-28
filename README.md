@@ -1,5 +1,7 @@
 # conda_user_shared
 
+Version 0.1
+
 Scripts and configuration files to move user conda environments and configuration files to a shared drive.
 
 **Note**: These scripts and files are optimized for the student laptop and desktop Macintosh computers in the East Carolina University (ECU) Department of Physics, but they can be configured to work on any POSIX computer.
@@ -68,4 +70,11 @@ The installation script has options to change directory names and locations and 
                    
       -d PDDIR     Set the path to the (piratedrive) shared directory with
                    the conda configuration information to PDDIR.
+                   
+## Version Information
 
+conda_user_shared package version 0.1. 
+
+<https://github.com/sprague252/conda_user_shared>
+
+Copyright Mark Sprague. Distributed under the GNU General Public License v3.0.
