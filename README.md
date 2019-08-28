@@ -48,11 +48,13 @@ The installation script has options to change directory names and locations and 
     Options:
 
       -h           Show this help message and exit.
+      
       -a           Install files all links, conda initialization commands, 
                    and conda channels without prompting. This option will
                    overwrite local copies of the .conda directory and the
                    .condarc file with symlinks to the shared directory. The
                    contents of the local directory and file will be lost.
+                   
       -l           Install local symlinks and initializations only. Do not
                    modify conda channels or anything in the shared
                    directory. This option will overwrite local copies of the
@@ -60,11 +62,10 @@ The installation script has options to change directory names and locations and 
                    the shared directory. The contents of the local directory
                    and file will be lost. The -l option takes precedance
                    over the -a option.
+                   
       -c CONDAEXEC Set the full path to the conda executable as CONDAEXEC
                    (default: /anaconda3/bin/conda)
+                   
       -d PDDIR     Set the path to the (piratedrive) shared directory with
                    the conda configuration information to PDDIR.
-               
-               
-    END
 
