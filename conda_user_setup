@@ -1,0 +1,246 @@
+#!/bin/bash
+# See usage message below for complete description.
+set -e
+set -o pipefail
+usage=$(cat << END
+usage: $(basename $0) [-h] [-a] [-l] [-p condadir]
+
+Configure a ECU Physics Mac Lab computer to use conda from the command
+line and configure a (piratedrive) shared directory to contain user
+preferences and user-installed environments.  This allows the user to
+install environments once and use them on all Mac Lab computers.  Note
+that this script must be run in the users home directory (~) to install
+the symlinks in the correct location.
+
+Options:
+
+  -h           Show this help message and exit.
+  -a           Install files all links, conda initialization commands, 
+               and conda channels without prompting. This option will
+               overwrite local copies of the .conda directory and the
+               .condarc file with symlinks to the shared directory. The
+               contents of the local directory and file will be lost.
+  -l           Install local symlinks and initializations only. Do not
+               modify conda channels or anything in the shared
+               directory. This option will overwrite local copies of the
+               .conda directory and the .condarc file with symlinks to
+               the shared directory. The contents of the local directory
+               and file will be lost. The -l option takes precedance
+               over the -a option.
+  -c CONDAEXEC Set the full path to the conda executable as CONDAEXEC
+               (default: /anaconda3/bin/conda)
+  -d PDDIR     Set the path to the (piratedrive) shared directory with
+               the conda configuration information to PDDIR.
+               
+               
+END
+)
+# Set defaults.
+__condadir="/HOME/conda"
+__localonly=false
+__all=false
+__condaexec="/anaconda3/bin/conda"
+
+# Get option values.
+while getopts 'had:c:' OPTION; do
+  case "$OPTION" in
+    h)
+      >&2 echo "$usage"
+      exit 0
+      ;;
+
+    a)
+      __all=true
+      ;;
+    l)
+      localonly=true
+      ;;
+    d)
+      __condadir=${OPTARG}
+      ;;
+    c)
+      __condaexec=${OPTARG}
+      ;;
+    ?)
+      echo "usage: $(basename $0) [-h] [-a] [-l] [-p condadir]" >&2
+      echo "  Use the -h option for help." >&2
+      exit 1
+      ;;
+  esac
+done
+shift "$(($OPTIND -1))"
+# Set conda bin directory from conda executable path.
+__condabin="$(dirname $__condaexec)"
+# __localonly take precedence over __all.
+if [ $__localonly = true ]; then
+    __all=false
+fi
+echo  >&2
+# Is shared directory mounted?
+if [ ! -d ${__condadir} ]; then
+    echo "Piratedrive not mounted as ${__condadir}." 1>&2
+    echo "Please mount the piratedrive and try again." 1>&2
+    exit 2
+fi
+# __all and __localonly execute without prompts.
+if [ "$__all" = true ] || [ "$__localonly" = true ]; then
+    rm -rf .conda
+    rm -f .condarc
+    if [ -d ${__condadir}/conda ]; then
+        ln -s "${__condadir}/conda" .conda
+        echo "Symlink to ${__condadir}/conda installed." >&2
+    else
+        mkdir "${__condadir}/conda"
+        echo "Directory ${__condadir}/conda created." >&2
+        ln -s "${__condadir}/conda" .conda
+        echo "Symlink to ${__condadir}/conda installed." >&2
+    fi
+    ${condabin} init -v
+    # Only __all modifies channels.
+    if [ $all = true ]; then
+        ${__condaexec} config -v --add channels vpython
+        ${__condaexec} config -v --add channels conda-forge
+    fi
+    exit 0
+fi
+# Does the directory .conda exist?
+if [ -e .conda ]; then
+    echo "Directory .conda exists." 1>&2
+    while true
+    do
+        echo "    Delete this directory and contents and "\
+            "replace with" 1>&2
+        read -p "    link to piratedrive? [ y | N ] " yn
+        case $yn in
+            [yY][eE][sS]|[yY]) yn='y'; break ;;
+            [nN][oO]|[nN])     yn='n'; break ;;
+            '')                yn='n'; break ;;
+            *)                 echo "Invalid input..." >&2;;
+        esac
+    done
+    if [ $yn = 'y' ]; then
+        rm -rf .conda
+    else
+        echo "Please remove/rename to initialize conda on piratedrive." 1>&2
+        exit 1
+    fi
+fi
+# Does the directory conda exist on the shared drive? If not, create it.
+if [ -d ${__condadir}/conda ]; then
+    ln -s "${__condadir}/conda" .conda
+    echo "Symlink to ${__condadir}/conda installed..." >&2
+else
+    mkdir "${__condadir}/conda"
+    echo "Directory ${__condadir}/conda created..." >&2
+    ln -s "${__condadir}/conda" .conda
+    echo "Symlink to ${__condadir}/conda installed..." >&2
+fi
+echo >&2
+# Is .condarc a symlink?
+if  [ -h .condarc ]; then
+    echo "File .condarc is a symlink." >&2
+    ptext="    Replace .condarc with symlink to piratedrive? [ y | N ] "
+    while true
+    do
+        read -p "$ptext" yn
+        case $yn in
+            [yY][eE][sS]|[yY]) yn='y'; break ;;
+            [nN][oO]|[nN])     yn='n'; break ;;
+            '')                yn='n'; break ;;
+            *)                 echo "Invalid input..." >&2;;
+        esac
+    done
+    if [ $yn = 'y' ]; then
+        rm .condarc
+        ln -s "${__condadir}/conda/condarc" .condarc
+        echo "Symlink to ${__condadir}/condarc installed." >&2
+    else
+        echo "Symlink .condarc unmodified..." >&2
+    fi
+# Does .condarc exist?
+elif [ -e .condarc ]; then
+    echo "File .condarc exists." >&2
+    while true
+    do
+        read -p "Move file to piratedrive? [ y | N ] " yn
+        case $yn in
+            [yY][eE][sS]|[yY]) yn='y'; break ;;
+            [nN][oO]|[nN])     yn='n'; break ;;
+            '')                yn='n'; break ;;
+            *)                 echo "Invalid input..." >&2;;
+        esac
+    done
+    if [ $yn = 'y' ]; then
+        cp .condarc "${__condadir}/conda/condarc"
+        # The following command will fail if .condarc is a directory.
+        rm .condarc
+        ln -s "${__condadir}/conda/condarc" .condarc
+        echo "Symlink to ${__condadir}/condarc installed." >&2
+    else
+        while true
+        do
+            echo "Remove file .condarc and replace with " >&2
+            read -p "piratedrive link? [ y | N ]  " yn
+            case $yn in
+                [yY][eE][sS]|[yY]) yn='y'; break ;;
+                [nN][oO]|[nN])     yn='n'; break ;;
+                '')                yn='n'; break ;;
+                *)                 echo "Invalid input..." >&2;;
+            esac
+        done
+        if [ $yn = 'y' ]; then
+            # The following command will fail if .condarc is a directory.
+            rm .condarc
+            touch -a "${__condadir}/conda/condarc"
+            ln -s "${__condadir}/conda/condarc" .condarc
+            echo "Symlink to ${__condadir}/condarc installed..." >&2
+        else
+            echo "File .condarc unmodified..." >&2
+        fi
+    fi
+else
+    touch -a "${__condadir}/conda/condarc"
+    ln -s "${__condadir}/conda/condarc" .condarc
+    echo "Symlink to ${__condadir}/condarc installed..." >&2
+fi
+echo  >&2
+# Initialize conda?
+while true
+do
+    read -p "Do you want to initialize conda in your shell startup files? [ Y | n ] " yn
+    case $yn in
+        [yY][eE][sS]|[yY]) yn='y'; break ;;
+        [nN][oO]|[nN])     yn='n'; break ;;
+        '')                yn='y'; break ;;
+        *)                 echo "Invalid input...";;
+    esac
+done
+if [ "$yn" = 'y' ]; then
+    "${__condaexec}" init -v
+else
+    echo $'Shell initialization files not modified...' >&2
+    echo "Execute command \"${__condaexec} init\" to add conda initialization." >&2
+    echo >&2
+fi
+echo >&2
+# Add conda channels?
+while true
+do
+    echo  "Add r, conda-forge, and vpython channels" >&2
+    read -p "to conda channel priority list?  [ Y | n ] " yn
+    case $yn in
+        [yY][eE][sS]|[yY]) yn='y'; break ;;
+        [nN][oO]|[nN])     yn='n'; break ;;
+        '')                yn='y'; break ;;
+        *)                 echo "Invalid input...";;
+    esac
+done
+if [ "$yn" = 'y' ]; then
+    "${__condaexec}" config -v --add channels vpython
+    "${__condaexec}" config -v --add channels conda-forge
+    "${__condaexec}" config -v --add channels r
+else
+    echo "Conda channels unmodified..." >&2
+    echo >&2
+fi
+
