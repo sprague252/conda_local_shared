@@ -36,7 +36,7 @@ This package contins a BASH configuration script `conda_user_setup` that replace
 
 The installation script has options to change directory names and locations and other parameters.  If started without options, the script is interactive and will ask the user how to proceed with each step.  Executing the script with `bash conda_user_shared -h` will show the following usage message.
 
-    usage: $(basename $0) [-h] [-a] [-l] [-p condadir]
+    usage: conda_user_setup [-h] [-a] [-l] [-p condadir]
 
     Configure a ECU Physics Mac Lab computer to use conda from the command
     line and configure a (piratedrive) shared directory to contain user
