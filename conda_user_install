@@ -100,7 +100,7 @@ done
 shift "$(($OPTIND -1))"
 # Set conda bin directory from conda executable path.
 __condabin="$(dirname $__condaexec)"
-__localonly take precedence over __all.
+# __localonly takes precedence over __all.
 if [ $__localonly = true ]; then
     __all=false
 fi
