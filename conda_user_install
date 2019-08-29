@@ -59,7 +59,7 @@ conda_user_shared package version 0.1
 END
 )"
 # Set defaults.
-__condadir="/HOME/conda_user_shared"
+__condadir="/Volumes/HOME/conda_user_shared"
 __condaexec="/anaconda3/bin/conda"
 __home="$HOME"
 __localonly=false
