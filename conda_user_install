@@ -61,7 +61,7 @@ END
 # Set defaults.
 __condadir="/Volumes/HOME/conda_user_shared"
 __condaexec="/anaconda3/bin/conda"
-__home="$HOME"
+__userdir="$HOME"
 __localonly=false
 __all=false
 
