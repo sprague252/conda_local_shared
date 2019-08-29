@@ -12,7 +12,7 @@ This package contins a BASH configuration script `conda_user_setup` that replace
 
 ## Files
 
-* `conda_user_setup` - BASH script that configures the computer to use the shared drive by replacing the `~/.conda` directory and the  `~/.condarc` user configuration file with symlinks to the shared drive.  The script also has the option to run `conda init`, which configures the user's `.bash_profile` file to add the appropriate conda environment variables on shell startup.
+* `conda_user_install` - BASH script that configures the computer to use the shared drive by replacing the `~/.conda` directory and the  `~/.condarc` user configuration file with symlinks to the shared drive.  The script also has the option to run `conda init`, which configures the user's `.bash_profile` file to add the appropriate conda environment variables on shell startup.
 
 * `conda` - Directory to hold the user's conda environment files on the shared drive.  The user's `~/.conda` directory is replaced with a symlink to this directory.
 
@@ -30,7 +30,7 @@ This package contins a BASH configuration script `conda_user_setup` that replace
 
 2. Run the setup script with the `-a` option to install everything without prompts:
 
-    `bash conda_user_setup`
+    `bash conda_user_install`
 
 3. Exit the terminal session and open a new one to use your newly configured `conda` files.
 
@@ -38,7 +38,8 @@ This package contins a BASH configuration script `conda_user_setup` that replace
 
 The installation script has options to change directory names and locations and other parameters.  If started without options, the script is interactive and will ask the user how to proceed with each step.  Executing the script with `bash conda_user_shared -h` will show the following usage message.
 
-    usage: conda_user_setup [-h] [-a] [-l] [-p condadir]
+    usage: conda_user_install [-h] [-a] [-l] [-s SHAREDIR] [-c CONDAEXEC] 
+                          [-u USERDIR]
 
     Configure a ECU Physics Mac Lab computer to use conda from the command
     line and configure a (piratedrive) shared directory to contain user
@@ -47,16 +48,17 @@ The installation script has options to change directory names and locations and 
     that this script must be run in the users home directory (~) to install
     the symlinks in the correct location.
 
+
     Options:
 
       -h           Show this help message and exit.
-      
+  
       -a           Install files all links, conda initialization commands, 
                    and conda channels without prompting. This option will
                    overwrite local copies of the .conda directory and the
                    .condarc file with symlinks to the shared directory. The
                    contents of the local directory and file will be lost.
-                   
+               
       -l           Install local symlinks and initializations only. Do not
                    modify conda channels or anything in the shared
                    directory. This option will overwrite local copies of the
@@ -64,12 +66,19 @@ The installation script has options to change directory names and locations and 
                    the shared directory. The contents of the local directory
                    and file will be lost. The -l option takes precedance
                    over the -a option.
-                   
-      -c CONDAEXEC Set the full path to the conda executable as CONDAEXEC
+               
+      -c CONDAEXEC Set the full path to the conda executable as CONDAEXEC.
                    (default: /anaconda3/bin/conda)
-                   
-      -d PDDIR     Set the path to the (piratedrive) shared directory with
-                   the conda configuration information to PDDIR.
+               
+      -s SHAREDIR  Set the path to the (piratedrive) shared directory that
+                   holds the conda configuration information to SHAREDIR.
+                   The installed symlinks will point to files/directories in
+                   this directory. 
+                   (default: /Volumes/HOME/conda_user_shared)
+
+      -u USERDIR   Set the user's home (login) directory to USERDIR. The
+                   symlinks will be installed in this directory.
+                   (default: ~)
                    
 ## Version Information
 

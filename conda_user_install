@@ -11,7 +11,8 @@
 set -e
 set -o pipefail
 usage=$(cat << END
-usage: $(basename $0) [-h] [-a] [-l] [-p condadir]
+usage: $(basename $0) [-h] [-a] [-l] [-s SHAREDIR] [-c CONDAEXEC] 
+                      [-u USERDIR]
 
 Configure a ECU Physics Mac Lab computer to use conda from the command
 line and configure a (piratedrive) shared directory to contain user
@@ -42,21 +43,30 @@ Options:
   -c CONDAEXEC Set the full path to the conda executable as CONDAEXEC.
                (default: /anaconda3/bin/conda)
                
-  -d PDDIR     Set the path to the (piratedrive) shared directory with
-               the conda configuration information to PDDIR.
+  -s SHAREDIR  Set the path to the (piratedrive) shared directory that
+               holds the conda configuration information to SHAREDIR.
+               The installed symlinks will point to files/directories in
+               this directory. 
+               (default: /Volumes/HOME/conda_user_shared)
+
+  -u USERDIR   Set the user's home (login) directory to USERDIR. The
+               symlinks will be installed in this directory.
+               (default: ~)
                
 conda_user_shared package version 0.1           
    
 END
 )
 # Set defaults.
-__condadir="/HOME/conda"
+__condadir="/HOME/conda_user_shared"
+__condaexec="/anaconda3/bin/conda"
+__home="$HOME"
 __localonly=false
 __all=false
-__condaexec="/anaconda3/bin/conda"
+
 
 # Get option values.
-while getopts 'had:c:' OPTION; do
+while getopts 'had:c:u:' OPTION; do
   case "$OPTION" in
     h)
       >&2 echo "$usage"
@@ -64,21 +74,25 @@ while getopts 'had:c:' OPTION; do
       ;;
 
     a)
-      __all=true
-      ;;
+        __all=true
+        ;;
     l)
-      localonly=true
-      ;;
+        localonly=true
+        ;;
     d)
-      __condadir=${OPTARG}
-      ;;
+        __condadir=${OPTARG}
+        ;;
     c)
-      __condaexec=${OPTARG}
-      ;;
+        __condaexec=${OPTARG}
+        ;;
+    u)
+        __userdir=${OPTARG}
+        ;;
     ?)
-      echo "usage: $(basename $0) [-h] [-a] [-l] [-p condadir]" >&2
-      echo "  Use the -h option for help." >&2
-      exit 1
+        echo "usage: $(basename $0) [-h] [-a] [-l] [-s SHAREDIR] "
+            $'[-c CONDAEXEC] [-u USERDIR]' >&2
+        echo "  Use the -h option for help." >&2
+        exit 1
       ;;
   esac
 done
@@ -92,21 +106,21 @@ fi
 echo  >&2
 # Is shared directory mounted?
 if [ ! -d ${__condadir} ]; then
-    echo "Piratedrive not mounted as ${__condadir}." 1>&2
-    echo "Please mount the piratedrive and try again." 1>&2
+    echo "Shared directory not available as ${__condadir}." 1>&2
+    echo "Please mount the shared directory and try again." 1>&2
     exit 2
 fi
 # __all and __localonly execute without prompts.
 if [ "$__all" = true ] || [ "$__localonly" = true ]; then
-    rm -rf .conda
-    rm -f .condarc
+    rm -rf "${__userdir}/.conda"
+    rm -f "${__userdir}/.condarc"
     if [ -d ${__condadir}/conda ]; then
-        ln -s "${__condadir}/conda" .conda
+        ln -s "${__condadir}/conda" "${__userdir}/.conda"
         echo "Symlink to ${__condadir}/conda installed." >&2
     else
         mkdir "${__condadir}/conda"
         echo "Directory ${__condadir}/conda created." >&2
-        ln -s "${__condadir}/conda" .conda
+        ln -s "${__condadir}/conda" "${__userdir}/.conda"
         echo "Symlink to ${__condadir}/conda installed." >&2
     fi
     ${condabin} init -v
@@ -118,7 +132,7 @@ if [ "$__all" = true ] || [ "$__localonly" = true ]; then
     exit 0
 fi
 # Does the directory .conda exist?
-if [ -e .conda ]; then
+if [ -e "${__userdir}/.conda" ]; then
     echo "Directory .conda exists." 1>&2
     while true
     do
@@ -133,7 +147,7 @@ if [ -e .conda ]; then
         esac
     done
     if [ $yn = 'y' ]; then
-        rm -rf .conda
+        rm -rf "${__userdir}/.conda"
     else
         echo "Please remove/rename to initialize conda on piratedrive." 1>&2
         exit 1
@@ -141,17 +155,17 @@ if [ -e .conda ]; then
 fi
 # Does the directory conda exist on the shared drive? If not, create it.
 if [ -d ${__condadir}/conda ]; then
-    ln -s "${__condadir}/conda" .conda
+    ln -s "${__condadir}/conda" "${__userdir}/.conda"
     echo "Symlink to ${__condadir}/conda installed..." >&2
 else
     mkdir "${__condadir}/conda"
     echo "Directory ${__condadir}/conda created..." >&2
-    ln -s "${__condadir}/conda" .conda
+    ln -s "${__condadir}/conda" "${__userdir}/.conda"
     echo "Symlink to ${__condadir}/conda installed..." >&2
 fi
 echo >&2
 # Is .condarc a symlink?
-if  [ -h .condarc ]; then
+if  [ -h "${__userdir}/.condarc" ]; then
     echo "File .condarc is a symlink." >&2
     ptext="    Replace .condarc with symlink to piratedrive? [ y | N ] "
     while true
@@ -165,14 +179,14 @@ if  [ -h .condarc ]; then
         esac
     done
     if [ $yn = 'y' ]; then
-        rm .condarc
-        ln -s "${__condadir}/conda/condarc" .condarc
+        rm "${__userdir}/.condarc"
+        ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
         echo "Symlink to ${__condadir}/condarc installed." >&2
     else
         echo "Symlink .condarc unmodified..." >&2
     fi
 # Does .condarc exist?
-elif [ -e .condarc ]; then
+elif [ -e "${__userdir}/.condarc" ]; then
     echo "File .condarc exists." >&2
     while true
     do
@@ -185,10 +199,10 @@ elif [ -e .condarc ]; then
         esac
     done
     if [ $yn = 'y' ]; then
-        cp .condarc "${__condadir}/conda/condarc"
+        cp "${__userdir}/.condarc" "${__condadir}/conda/condarc"
         # The following command will fail if .condarc is a directory.
-        rm .condarc
-        ln -s "${__condadir}/conda/condarc" .condarc
+        rm "${__userdir}/.condarc"
+        ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
         echo "Symlink to ${__condadir}/condarc installed." >&2
     else
         while true
@@ -204,9 +218,9 @@ elif [ -e .condarc ]; then
         done
         if [ $yn = 'y' ]; then
             # The following command will fail if .condarc is a directory.
-            rm .condarc
+            rm "${__userdir}/.condarc"
             touch -a "${__condadir}/conda/condarc"
-            ln -s "${__condadir}/conda/condarc" .condarc
+            ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
             echo "Symlink to ${__condadir}/condarc installed..." >&2
         else
             echo "File .condarc unmodified..." >&2
@@ -214,7 +228,7 @@ elif [ -e .condarc ]; then
     fi
 else
     touch -a "${__condadir}/conda/condarc"
-    ln -s "${__condadir}/conda/condarc" .condarc
+    ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
     echo "Symlink to ${__condadir}/condarc installed..." >&2
 fi
 echo  >&2
