@@ -181,7 +181,7 @@ if  [ -h "${__userdir}/.condarc" ]; then
     done
     if [ $yn = 'y' ]; then
         rm "${__userdir}/.condarc"
-        ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
+        ln -s "${__condadir}/condarc" "${__userdir}/.condarc"
         echo "Symlink to ${__condadir}/condarc installed." >&2
     else
         echo "Symlink .condarc unmodified..." >&2
@@ -200,10 +200,10 @@ elif [ -e "${__userdir}/.condarc" ]; then
         esac
     done
     if [ $yn = 'y' ]; then
-        cp "${__userdir}/.condarc" "${__condadir}/conda/condarc"
+        cp "${__userdir}/.condarc" "${__condadir}/condarc"
         # The following command will fail if .condarc is a directory.
         rm "${__userdir}/.condarc"
-        ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
+        ln -s "${__condadir}/condarc" "${__userdir}/.condarc"
         echo "Symlink to ${__condadir}/condarc installed." >&2
     else
         while true
@@ -220,16 +220,16 @@ elif [ -e "${__userdir}/.condarc" ]; then
         if [ $yn = 'y' ]; then
             # The following command will fail if .condarc is a directory.
             rm "${__userdir}/.condarc"
-            touch -a "${__condadir}/conda/condarc"
-            ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
+            touch -a "${__condadir}/condarc"
+            ln -s "${__condadir}/condarc" "${__userdir}/.condarc"
             echo "Symlink to ${__condadir}/condarc installed..." >&2
         else
             echo "File .condarc unmodified..." >&2
         fi
     fi
 else
-    touch -a "${__condadir}/conda/condarc"
-    ln -s "${__condadir}/conda/condarc" "${__userdir}/.condarc"
+    touch -a "${__condadir}/condarc"
+    ln -s "${__condadir}/condarc" "${__userdir}/.condarc"
     echo "Symlink to ${__condadir}/condarc installed..." >&2
 fi
 echo  >&2
