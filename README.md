@@ -45,24 +45,35 @@ this package is distributed.
 ### Brief instructions for the impatient
 
 1. If you have not already done so, install this package on your shared
-drive (piratedrive) by cloning the GIT repository.  On the ECU Macs,
-open a terminal and enter the following commands.
+    drive (piratedrive) by cloning the GIT repository.  On the ECU Macs,
+    open a terminal and enter the following commands.
 
     `cd /Volumes/HOME/`
     `git clone https://github.com/sprague252/conda_user_shared.git`
 
 2. In the terminal, change directories to the directory on the shared
-drive containing this repository.  On the ECU Macs, use the command:
+    drive containing this repository.  On the ECU Macs, use the command:
 
     `cd /Volumes/HOME/conda_user_shared`
 
 3. Run the setup script with the `-a` option to install everything
-without prompts:
+    without prompts:
 
     `bash conda_user_install -a`
 
 3. Exit the terminal session and open a new one to use your newly
-configured `conda` files.
+    configured `conda` files.
+
+4. When using an uninitialized ECU Mac, open the terminal and run the
+    following command to configure the local portion.
+
+    `cd /Volumes/HOME/conda_user_shared`  
+    `bash conda_user_install -l`
+
+    Note that the commands above assume you have this package installed
+    in the directory `/Volumes/HOME/conda_user_shared`.  After running
+    the install script, exit the terminal window and open a new one to
+    start an initialized session.
 
 ### Detailed Instructions
 

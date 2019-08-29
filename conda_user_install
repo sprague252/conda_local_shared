@@ -67,7 +67,7 @@ __all=false
 
 
 # Get option values.
-while getopts 'had:c:u:' OPTION; do
+while getopts 'has:c:u:' OPTION; do
   case "$OPTION" in
     h)
       >&2 echo "$usage"
@@ -80,7 +80,7 @@ while getopts 'had:c:u:' OPTION; do
     l)
         localonly=true
         ;;
-    d)
+    s)
         __condadir=${OPTARG}
         ;;
     c)
