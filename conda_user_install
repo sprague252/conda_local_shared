@@ -1,7 +1,7 @@
 #!/bin/bash
 # See usage message below for complete description.
 #
-# This script is part of the conda_user_shared package version 0.1.
+# This script is part of the conda_user_shared package version 0.1.1.
 #
 #    https://github.com/sprague252/conda_user_shared
 #
@@ -10,7 +10,8 @@
 
 set -e
 set -o pipefail
-usage=$(cat << END
+usage="$(cat << END
+
 usage: $(basename $0) [-h] [-a] [-l] [-s SHAREDIR] [-c CONDAEXEC] 
                       [-u USERDIR]
 
@@ -49,14 +50,14 @@ Options:
                this directory. 
                (default: /Volumes/HOME/conda_user_shared)
 
-  -u USERDIR   Set the user's home (login) directory to USERDIR. The
+  -u USERDIR   Set the user\'s home (login) directory to USERDIR. The
                symlinks will be installed in this directory.
                (default: ~)
                
 conda_user_shared package version 0.1           
    
 END
-)
+)"
 # Set defaults.
 __condadir="/HOME/conda_user_shared"
 __condaexec="/anaconda3/bin/conda"
@@ -89,7 +90,7 @@ while getopts 'had:c:u:' OPTION; do
         __userdir=${OPTARG}
         ;;
     ?)
-        echo "usage: $(basename $0) [-h] [-a] [-l] [-s SHAREDIR] "
+        echo "usage: $(basename $0) [-h] [-a] [-l] [-s SHAREDIR]"\
             $'[-c CONDAEXEC] [-u USERDIR]' >&2
         echo "  Use the -h option for help." >&2
         exit 1
@@ -99,7 +100,7 @@ done
 shift "$(($OPTIND -1))"
 # Set conda bin directory from conda executable path.
 __condabin="$(dirname $__condaexec)"
-# __localonly take precedence over __all.
+__localonly take precedence over __all.
 if [ $__localonly = true ]; then
     __all=false
 fi

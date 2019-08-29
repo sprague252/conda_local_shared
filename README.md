@@ -1,6 +1,6 @@
 # conda_user_shared
 
-Version 0.1
+Version 0.1.1
 
 Scripts and configuration files to move user conda environments and configuration files to a shared drive.
 
@@ -8,7 +8,7 @@ Scripts and configuration files to move user conda environments and configuratio
 
 ## Overview
 
-This package contins a BASH configuration script `conda_user_setup` that replaces the `~/.conda` directory and the `~/.condarc` user configuration file with symlinks to another directory.  If that other directory is on a shared drive, such as the ECU Pirate Drive, that is mounted on any of the student computers, the user only has to run a minimal installation script contained on the shared drive in order to access user-installed Conda configuration files and environments.  This eliminates the need to re-install environments each time the user logs onto a different computer.
+This package contins a BASH configuration script `conda_user_install` that replaces the `~/.conda` directory and the `~/.condarc` user configuration file with symlinks to another directory.  If that other directory is on a shared drive, such as the ECU Pirate Drive, that is mounted on any of the student computers, the user only has to run a minimal installation script contained on the shared drive in order to access user-installed Conda configuration files and environments.  This eliminates the need to re-install environments each time the user logs onto a different computer.
 
 ## Files
 
@@ -24,13 +24,18 @@ This package contins a BASH configuration script `conda_user_setup` that replace
 
 ### Brief instructions for the impatient
 
-1. Open a terminal, and change directories to the directory on the shared drive containing this repository.  On the ECU Macs, use the command:
+1. If you have not already done so, install this package on your shared drive (piratedrive) by cloning the GIT repository.  On the ECU Macs, a terminal and enter the following commands.
+
+    `cd /Volumes/HOME/`
+    `git clone https://github.com/sprague252/conda_user_shared.git`
+
+2. In the terminal, change directories to the directory on the shared drive containing this repository.  On the ECU Macs, use the command:
 
     `cd /Volumes/HOME/conda_user_shared`
 
-2. Run the setup script with the `-a` option to install everything without prompts:
+3. Run the setup script with the `-a` option to install everything without prompts:
 
-    `bash conda_user_install`
+    `bash conda_user_install -a`
 
 3. Exit the terminal session and open a new one to use your newly configured `conda` files.
 
@@ -82,7 +87,7 @@ The installation script has options to change directory names and locations and 
                    
 ## Version Information
 
-conda_user_shared package version 0.1. 
+conda_user_shared package version 0.1.1
 
 <https://github.com/sprague252/conda_user_shared>
 
